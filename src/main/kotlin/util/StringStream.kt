@@ -1,7 +1,7 @@
 package xiaoJson.util
 
 class StringStream(private val jsonString: String) {
-    private var index = 0
+    private var index = -1
 
     fun next(): Char {
         return jsonString[index++]
@@ -12,5 +12,5 @@ class StringStream(private val jsonString: String) {
     }
 
     val isEOF: Boolean
-        get() = jsonString.length - 1 == index
+        get() = jsonString.length < index
 }

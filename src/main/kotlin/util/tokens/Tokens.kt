@@ -7,4 +7,5 @@ enum class Tokens(val str: String) {
     RIGHT_SQUARE_BRACKETS("]"),
     DOUBLE_QUOTES("\""),
     COMMA(","),
+    COLON(":")
 }
