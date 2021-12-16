@@ -1,11 +1,18 @@
 package xiaoJson
 
+import xiaoJson.util.Parser
+import xiaoJson.util.nodes.Node
+
 class XiaoJSON {
-    fun <T> parser(jsonString: String) {
+    companion object {
+        fun parser(jsonString: String): Node {
+            val parser = Parser(jsonString)
+            parser.jsonParser()
+            return parser.getNode
+        }
 
-    }
+        fun <T> stringify(value: T) {
 
-    fun <T> stringify(value: T) {
-
+        }
     }
 }

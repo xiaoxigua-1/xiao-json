@@ -1,6 +1,6 @@
 package xiaoJson.util
 
-import xiaoJson.error.XiaoJSONParseError
+import xiaoJson.error.XiaoJSONSyntaxError
 
 class StringStream(private val jsonString: String) {
     private var index = 0
@@ -17,7 +17,7 @@ class StringStream(private val jsonString: String) {
         get() {
             if (jsonString.length > index)
                 return jsonString[index]
-            else throw XiaoJSONParseError("unexpected EOF while parsing")
+            else throw XiaoJSONSyntaxError("Unexpected end of JSON input")
         }
 
     val isEOF: Boolean

@@ -1,10 +1,7 @@
 package xiaoJson.util
 
-import xiaoJson.error.XiaoJSONParseError
-import xiaoJson.util.nodes.ArrayNode
-import xiaoJson.util.nodes.Node
-import xiaoJson.util.nodes.ObjectNode
-import xiaoJson.util.nodes.StringNode
+import xiaoJson.error.XiaoJSONSyntaxError
+import xiaoJson.util.nodes.*
 import xiaoJson.util.tokens.Tokens
 
 class Parser(jsonString: String) {
@@ -23,15 +20,14 @@ class Parser(jsonString: String) {
                 Tokens.LEFT_SQUARE_BRACKETS.str -> {
                     nodes.add(ArrayNode(mutableListOf()))
                 }
-                Tokens.RIGHT_CURLY_BRACKETS.str -> mergeNodes()
-                Tokens.RIGHT_SQUARE_BRACKETS.str -> mergeNodes()
+                Tokens.RIGHT_CURLY_BRACKETS.str, Tokens.RIGHT_SQUARE_BRACKETS.str -> mergeNodes()
                 Tokens.DOUBLE_QUOTES.str -> {
                     val node = nodes[nodes.size - 1]
 
                     if (!isValue) {
                         if (node is ObjectNode) {
                             keysPush(string().value)
-                            node.value[keysCurrently] = Node()
+                            node.value[keysCurrently] = TemplateNode(null)
                         } else if (node is ArrayNode) {
                             node.value.add(string())
                         }
@@ -49,6 +45,15 @@ class Parser(jsonString: String) {
                 }
                 Tokens.COLON.str -> isValue = true
                 Tokens.COMMA.str -> isValue = false
+                else -> {
+                    if (isValue) {
+                         when (stringStream.currently) {
+                            't', 'f' -> nodes.add(boolean())
+                            in ('0'..'9') + '.' + '-' -> nodes.add(number())
+                            else -> XiaoJSONSyntaxError("")
+                        }
+                    } else throw XiaoJSONSyntaxError("")
+                }
             }
 
             stringStream.next()
@@ -60,12 +65,42 @@ class Parser(jsonString: String) {
 
         stringStream.next()
 
-        while ((stringStream.currently != Tokens.DOUBLE_QUOTES.str)) {
-            if (stringStream.isEOF) throw XiaoJSONParseError("Missing \"")
+        while (stringStream.currently != Tokens.DOUBLE_QUOTES.str) {
+            if (stringStream.isEOF) throw XiaoJSONSyntaxError("Unexpected end of JSON input")
             str += stringStream.next()
         }
 
         return StringNode(str)
+    }
+
+    private fun boolean(): BooleanNode {
+        var str = ""
+
+        while (stringStream.currently !in Tokens.values().map { it.str }) {
+            str += stringStream.next()
+        }
+
+        stringStream.back()
+
+        return when (str) {
+            "true" -> BooleanNode(true)
+            "false" -> BooleanNode(false)
+            else -> throw XiaoJSONSyntaxError("")
+        }
+    }
+
+    private fun number(): Node {
+        var str = ""
+        var isFloat = false
+
+        while (stringStream.currently !in Tokens.values().map { it.str }) {
+            str += stringStream.next()
+            if (stringStream.currently == '.') isFloat = true
+        }
+
+        stringStream.back()
+        return if (isFloat) FloatNode(str.toDouble())
+        else NumberNode(str.toLong())
     }
 
     private fun keysPush(key: String) {
@@ -95,6 +130,6 @@ class Parser(jsonString: String) {
         }
     }
 
-    val getNode: MutableList<Node>
-        get() = nodes
+    val getNode: Node
+        get() = nodes[0]
 }

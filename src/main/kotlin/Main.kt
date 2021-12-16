@@ -1,12 +1,12 @@
 package xiaoJson
 
 import xiaoJson.util.Parser
-
+import kotlin.reflect.KProperty1
 
 data class S(val a: String)
 
 fun main() {
-    val parser = Parser("{\"a\": \"c\", \"c\": \"a\", \"d\": [\"a\", {\"a\": \"c\"}]}")
-    parser.jsonParser()
-    println(parser.getNode[0])
+    val data = XiaoJSON.parser("{\"a\": [1,2,3]}")
+    println(data)
+    println(data.get<Long>("a"))
 }

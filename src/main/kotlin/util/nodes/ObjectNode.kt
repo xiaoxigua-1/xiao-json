@@ -1,3 +1,3 @@
 package xiaoJson.util.nodes
 
-data class ObjectNode(val value: MutableMap<String, Node>) : Node()
+data class ObjectNode(override val value: MutableMap<String, Node>) : Node()
