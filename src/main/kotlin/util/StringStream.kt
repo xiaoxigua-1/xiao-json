@@ -15,5 +15,5 @@ class StringStream(private val jsonString: String) {
         get() = jsonString[index]
 
     val isEOF: Boolean
-        get() = jsonString.length < index
+        get() = (jsonString.length - 1) < index
 }
