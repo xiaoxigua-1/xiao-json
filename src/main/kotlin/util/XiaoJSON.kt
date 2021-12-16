@@ -1,49 +1,31 @@
 package xiaoJson.util
 
+import xiaoJson.util.nodes.Node
+import xiaoJson.util.nodes.StringNode
+import xiaoJson.util.tokens.Tokens
+
 class Parser(private val jsonString: String) {
     private val stringStream = StringStream(jsonString)
-    private val jsonObject: MutableMap<String, String> = mutableMapOf()
+    private val jsonObject: MutableMap<String, Node> = mutableMapOf()
 
     fun jsonParser() {
-        var str = ""
-        var isString = false
-        var isObject = false
-        var isArray = false
-        var isValue = false
-        var value = ""
-        var key = ""
+        val nodes = mutableListOf<Node>()
 
-        while (stringStream.isEOF) {
-            val nextChar = stringStream.next()
-            str += nextChar
+        while (!stringStream.isEOF) {
+            stringStream.next()
 
-            when(nextChar) {
-                '\"' -> {
-                    isString = !isString
-                    if (!isString) {
-                        if (isValue) {
-                            value = str
-                        } else {
-                            key = str
-                        }
-                    }
-                }
-                '{' -> isObject = true
-                '}' -> isObject = false
-                '[' -> isArray = true
-                ']' -> isArray = false
-                ':' -> {
-                    str = ""
-                    isValue = true
-                }
-                ',' -> {
-                    str = ""
-                    isValue = false
-                }
-                else -> {
-                    str += nextChar
-                }
-            }
         }
+    }
+
+    fun string(): StringNode {
+        var str = ""
+
+        stringStream.next()
+
+        while (!stringStream.isEOF && (stringStream.currently != Tokens.DOUBLE_QUOTES.str)) {
+            str += stringStream.next()
+        }
+
+        return StringNode(str)
     }
 }
