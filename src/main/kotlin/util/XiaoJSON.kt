@@ -1,6 +1,6 @@
 package xiaoJson.util
 
-import xiaoJson.error.XiaoJSONSyntaxError
+import xiaoJson.error.XiaoJSONParseError
 import xiaoJson.util.nodes.ArrayNode
 import xiaoJson.util.nodes.Node
 import xiaoJson.util.nodes.ObjectNode
@@ -61,7 +61,7 @@ class Parser(jsonString: String) {
         stringStream.next()
 
         while ((stringStream.currently != Tokens.DOUBLE_QUOTES.str)) {
-            if (stringStream.isEOF) throw XiaoJSONSyntaxError("Missing DOUBLE_QUOTES")
+            if (stringStream.isEOF) throw XiaoJSONParseError("Missing \"")
             str += stringStream.next()
         }
 
