@@ -1,11 +1,17 @@
 package xiaoJson.util.nodes
 
+import xiaoJson.error.XiaoJSONSyntaxError
+import xiaoJson.type.XiaoArray
+
 abstract class Node {
     abstract val value: Any?
 
     inline fun <reified T> get(key: String): T {
-        if (this is ObjectNode) {
-            return this.value[key]?.value as T
+        return if (this is ObjectNode) {
+            this.value[key]?.value as T
         } else throw throw TypeCastException()
     }
+
+    val array: XiaoArray
+        get() = value as XiaoArray
 }

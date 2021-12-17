@@ -45,7 +45,7 @@ class Parser(jsonString: String) {
                 }
                 Tokens.COLON.str -> isValues[isValues.size - 1] = true
                 Tokens.COMMA.str -> isValues[isValues.size - 1] = false
-                ' ' -> {}
+                ' ', '\n', '\r' -> {}
                 else -> {
                     val node = nodes[nodes.size - 1]
 
