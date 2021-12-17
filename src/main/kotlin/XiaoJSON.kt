@@ -11,8 +11,10 @@ class XiaoJSON {
             return parser.getNode
         }
 
-        fun <T> stringify(value: T) {
-
+        fun stringify(value: Any) {
+            val keys = value::class.java.declaredFields.map { it.name }
+            // key
+            // value idk
         }
     }
 }
