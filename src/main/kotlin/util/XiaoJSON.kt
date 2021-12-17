@@ -8,14 +8,14 @@ class Parser(jsonString: String) {
     private val stringStream = StringStream(jsonString)
     private val nodes = mutableListOf<Node>()
     private val keys = mutableListOf<String>()
+    private val isValues = mutableListOf<Boolean>()
 
     fun jsonParser() {
-        var isValue = false
-
         while (!stringStream.isEOF) {
             when (stringStream.currently) {
                 Tokens.LEFT_CURLY_BRACKETS.str -> {
                     nodes.add(ObjectNode(mutableMapOf()))
+                    isValues.add(false)
                 }
                 Tokens.LEFT_SQUARE_BRACKETS.str -> {
                     nodes.add(ArrayNode(mutableListOf()))
@@ -24,7 +24,7 @@ class Parser(jsonString: String) {
                 Tokens.DOUBLE_QUOTES.str -> {
                     val node = nodes[nodes.size - 1]
 
-                    if (!isValue) {
+                    if (!isValues[isValues.size - 1]) { // key
                         if (node is ObjectNode) {
                             keysPush(string().value)
                             node.value[keysCurrently] = TemplateNode(null)
@@ -33,7 +33,7 @@ class Parser(jsonString: String) {
                         }
 
                         nodes[nodes.size - 1] = node
-                    } else {
+                    } else { // value
                         if (node is ObjectNode) {
                             node.value[keysCurrently] = string()
                             keysPop()
@@ -43,16 +43,27 @@ class Parser(jsonString: String) {
                         }
                     }
                 }
-                Tokens.COLON.str -> isValue = true
-                Tokens.COMMA.str -> isValue = false
+                Tokens.COLON.str -> isValues[isValues.size - 1] = true
+                Tokens.COMMA.str -> isValues[isValues.size - 1] = false
+                ' ' -> {}
                 else -> {
-                    if (isValue) {
-                         when (stringStream.currently) {
-                            't', 'f' -> nodes.add(boolean())
-                            in ('0'..'9') + '.' + '-' -> nodes.add(number())
-                            else -> XiaoJSONSyntaxError("")
-                        }
-                    } else throw XiaoJSONSyntaxError("")
+                    val node = nodes[nodes.size - 1]
+
+                    when (stringStream.currently) {
+                        't', 'f' -> nodes.add(boolean())
+                        in ('0'..'9') + '.' + '-' -> nodes.add(number())
+                        else -> XiaoJSONSyntaxError("")
+                    }
+
+                    if (node is ArrayNode) {
+                        node.value.add(nodes[nodes.size - 1])
+
+                    } else if (node is ObjectNode) {
+                        node.value[keysCurrently] = nodes[nodes.size - 1]
+                        keysPop()
+                    }
+
+                    nodes.removeAt(nodes.size - 1)
                 }
             }
 

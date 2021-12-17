@@ -5,9 +5,7 @@ abstract class Node {
 
     inline fun <reified T> get(key: String): T {
         if (this is ObjectNode) {
-            val value = this.value[key]?.value
-
-            return value as T
+            return this.value[key]?.value as T
         } else throw throw TypeCastException()
     }
 
