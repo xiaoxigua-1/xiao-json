@@ -11,8 +11,9 @@ class XiaoJSON {
             return parser.getNode.get<T>()
         }
 
+        @Deprecated("懶的寫")
         fun stringify(value: Any) {
-            val keys = value::class.java.declaredFields.map { it.name }
+//            val keys = value::class.java.declaredFields.map { it.name }
             // key
             // value idk
         }
